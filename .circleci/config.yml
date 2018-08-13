@@ -36,7 +36,7 @@ jobs:
           name: run tests
           command: |
             . venv/bin/activate
-            python mstumorsim/tests/test_tumorsim.py 
+            cd mstumorsim && PYTHONPATH=. python mstumorsim/tests/test_tumorsim.py 
 
       - store_artifacts:
           path: test-reports
