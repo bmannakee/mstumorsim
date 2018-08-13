@@ -21,8 +21,10 @@ jobs:
           command: |
             python3 -m venv venv
             . venv/bin/activate
+            pip install --upgrade pip
             pip install networkx
             pip install numpy
+            pip install scipy
 
  
           
