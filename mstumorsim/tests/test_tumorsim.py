@@ -2,7 +2,7 @@
 
 import unittest
 
-import utils
+import mstumorsim.utils as utils
 from mstumorsim.tumorsim import SNVtree
 
 
