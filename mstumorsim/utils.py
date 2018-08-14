@@ -13,7 +13,7 @@ def get_spectrum(sigs):
     sigs = load_signatures()
     cols = [f'Signature_{sig}' for sig in sigs]
     spec_fr = sigs[cols]
-    spec = spec_fr.sum(axis=0)
+    spec = spec_fr.sum(axis=1)
     spec = spec/sum(spec)
     return(spec)
 
