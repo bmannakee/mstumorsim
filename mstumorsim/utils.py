@@ -2,7 +2,7 @@ import os
 import pandas
 
 this_path,this_file = os.path.split(__file__)
-SIG_FILE = os.path.join(this_path,'data','signature_probabilities.txt')
+SIG_FILE = os.path.join(this_path,'data','signatures_probabilities.txt')
 
 def load_signatures():
     sigs = pandas.read_table(SIG_FILE)
