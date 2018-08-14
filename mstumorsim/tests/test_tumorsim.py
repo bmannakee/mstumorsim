@@ -12,7 +12,7 @@ class TestTumorSim(unittest.TestCase):
         spec.append(1-sum(spec))
         tree = SNVtree(100,spec)
         print(f'Number of cells is {len(tree.get_cells())}')
-        self.assertEqual(len(tree.get_cells),100)
+        self.assertEqual(len(tree.get_cells()),100)
 
     def test_spectrum(self):
         spec = utils.get_spectrum([1,5])
