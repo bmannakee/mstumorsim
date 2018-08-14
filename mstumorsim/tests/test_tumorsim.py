@@ -20,3 +20,6 @@ class TestTumorSim(unittest.TestCase):
         print(f'Sum of spectrum is {sum(spec)}')
         self.assertEqual(len(spec),96)
         self.assertEqual(sum(spec),1)
+
+if __name__ == '__main__':
+    unittest.main()
