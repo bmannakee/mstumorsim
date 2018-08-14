@@ -10,9 +10,9 @@ def load_signatures():
     return sigs
 
 def get_spectrum(sigs):
-    sigs = load_signatures()
+    sigs_fr = load_signatures()
     cols = [f'Signature_{sig}' for sig in sigs]
-    spec_fr = sigs[cols]
+    spec_fr = sigs_fr[cols]
     spec = spec_fr.sum(axis=0)
     spec = spec/sum(spec)
     return(spec)
