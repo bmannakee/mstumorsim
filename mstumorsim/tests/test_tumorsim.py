@@ -19,7 +19,7 @@ class TestTumorSim(unittest.TestCase):
         print(f'Length of spectrum is {len(spec)}')
         print(f'Sum of spectrum is {sum(spec)}')
         self.assertEqual(len(spec),96)
-        self.assertEqual(sum(spec),1)
+        self.assertAlmostEqual(sum(spec),1)
 
 if __name__ == '__main__':
     unittest.main()
