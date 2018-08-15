@@ -9,10 +9,13 @@ def load_signatures():
     sigs.columns = sigs.columns.str.replace(" ","_")
     return sigs
 
+# Load signature frame ONCE, rather than several million times
+SIGS_FR = load_signatures()
+
 def get_spectrum(sigs):
-    sigs_fr = load_signatures()
+    
     cols = [f'Signature_{sig}' for sig in sigs]
-    spec_fr = sigs_fr[cols]
+    spec_fr = SIGS_FR[cols]
     spec = spec_fr.sum(axis=1)
     spec = spec/sum(spec)
     return(spec)
