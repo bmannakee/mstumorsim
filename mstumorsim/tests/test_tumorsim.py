@@ -11,6 +11,7 @@ class TestTumorSim(unittest.TestCase):
         spec = [1/96. for x in range(95)]
         spec.append(1-sum(spec))
         tree = SNVtree(1000,spec)
+        tree.run()
         print(f'Number of cells is {len(tree.get_cells())}')
         self.assertEqual(len(tree.get_cells()),1000)
 
