@@ -17,7 +17,7 @@ class Mutation:
         self.id = str(uuid4())
         # multinomial returns an array with a 1 in the bin that holds the returned value
         # and 0 everywhere else. 1-indexed for further processing.
-        self.mutation_class = np.argmax(multinomial.rvs(1,spectrum.spectrum)) + 1
+        self.mutation_class = np.argmax(multinomial.rvs(1,spectrum)) + 1
 
 
 class Cell:
