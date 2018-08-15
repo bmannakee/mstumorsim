@@ -77,7 +77,7 @@ class SNVtree:
         self.queue = deque()
         # seed with enough cells to survive. All have parent 1, and 2 different mutations.
         # here 1 is like a stem cell. TODO: more elegant way to do this?
-        initial_cells = [Cell(mut_rate = 2, parent = 1,spectrum = self.init_spectrum,mutations = [Mutation(self.init_spectrum),Mutation(self.init_spectrum)]) for i in range(10)] 
+        initial_cells = [Cell(mut_rate = 2, parent = 1,spectrum = self.init_spectrum,mutations = [Mutation(self.init_spectrum.spectrum),Mutation(self.init_spectrum.spectrum)]) for i in range(10)] 
         self.queue.extend(initial_cells)
 
 
