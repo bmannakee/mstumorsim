@@ -3,7 +3,7 @@ from uuid import uuid4
 from scipy.stats import bernoulli, multinomial
 import numpy as np
 import networkx as nx
-import utils
+from mstumorsim.utils import get_spectrum
 
 class Spectrum:
     def __init__(self,sigs):
