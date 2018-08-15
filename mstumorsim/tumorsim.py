@@ -86,8 +86,8 @@ class SNVtree:
         while len(self.queue) < self.n:
             c = self.queue.popleft()
             if self._test_for_new_spectrum(len(self.queue)):
-                new_sigs = c.get_sigs()
-                new_sigs.extend(self.add_sigs[self.next_timepoint_index - 1]) # Awkward, we already incremented timepoint index
+                # Awkward, we already incremented timepoint index
+                new_sigs = np.append(c.get_sigs(),self.add_sigs[self.next_timepoint_index - 1])     
             else:
                 new_sigs = c.get_sigs()
             new_cells = c.reproduce(new_sigs)
