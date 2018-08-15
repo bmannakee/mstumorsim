@@ -114,6 +114,9 @@ class SNVtree:
         # that we will hit the add index exactly
         # Incrementing the next_timepoint_index here prevents getting more
         # than one cell with the new spectrum
+        if self.next_timepoint_index == self.add_timepoints.size():
+            # We have used up all of the timepoints
+            return False
         low = ncells - 5
         high = ncells + 5
         timepoint = int(self.add_timepoints[self.next_timepoint_index] * self.n)
