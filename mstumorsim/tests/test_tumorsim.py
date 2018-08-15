@@ -8,10 +8,10 @@ from mstumorsim.tumorsim import SNVtree
 
 class TestTumorSim(unittest.TestCase):
     def test_basic_sim(self):
-        tree = SNVtree(1000,[1,5,4,6],[0,0,.25,.75])
+        tree = SNVtree(100,[1,5,4,6],[0,0,.25,.75])
         tree.run()
         print(f'Number of cells is {len(tree.get_cells())}')
-        self.assertEqual(len(tree.get_cells()),1000)
+        self.assertEqual(len(tree.get_cells()),100)
 
     def test_spectrum(self):
         spec = utils.get_spectrum([1,5])

@@ -117,6 +117,7 @@ class SNVtree:
         low = ncells - 5
         high = ncells + 5
         timepoint = int(self.add_timepoints[self.next_timepoint_index] * self.n)
+        print(timepoint)
         if low <= timepoint <= high:
             self.next_timepoint_index += 1
             return True
