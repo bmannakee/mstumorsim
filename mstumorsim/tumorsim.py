@@ -8,7 +8,7 @@ from mstumorsim.utils import get_spectrum
 class Spectrum:
     def __init__(self,sigs):
         self.sigs = sigs
-        self.spectrum = utils.get_spectrum(self.sigs)
+        self.spectrum = get_spectrum(self.sigs)
 
 
 
@@ -68,7 +68,7 @@ class SNVtree:
         '''
         self.input_sigs = np.array(sigs)
         self.input_timepoints = np.array(timepoints)
-        self.init_sigs = sigs[np.where(timepoints == 0)]
+        self.init_sigs = self.input_sigs[np.where(timepoints == 0)]
         self.init_spectrum = Spectrum(self.init_sigs)
         self.add_sigs = self.input_sigs[np.where(self.input_timepoints > 0)]
         self.add_timepoints = self.input_timepoints[np.where(self.input_timepoints > 0)]
