@@ -22,7 +22,7 @@ class Mutation:
 
 class Cell:
        # TODO: add bozic parameters Should mutations be their own object. With ID and spectrum? '''
-        def __init__(self,mut_rate,parent,spectrum,mutations):
+        def __init__(self,mut_rate,parent,spectrum=None,mutations=None):
            self.rep_rate = 2 # Cells just divide
            self.dormant = False
            self.mr = mut_rate
@@ -62,7 +62,7 @@ class Cell:
 class SNVtree:
    # A tree that does stuff. More documentation please '''
 
-    def __init__(self,num_cells,sigs,timepoints):
+    def __init__(self,num_cells,empty=False,sigs=None,timepoints=None):
         '''
         num_cells: The total number of cells in the tree at completion
         sigs: List of integers (1-30) specifying the COSMIC mutational signatures to include in the tumor
@@ -93,7 +93,9 @@ class SNVtree:
             c = self.queue.popleft()
             # test for dormancy here to speed things up
             if c.dormant:
-                self.queue.append(c)
+                # Try not adding the dormant/dead cell back.
+                # This should be much slower
+                #self.queue.append(c)
                 continue
             if self._test_for_new_spectrum(len(self.queue)):
                 # Awkward, we already incremented timepoint index
