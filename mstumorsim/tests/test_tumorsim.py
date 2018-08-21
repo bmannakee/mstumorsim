@@ -8,7 +8,7 @@ from mstumorsim.tumorsim import SNVtree
 
 class TestTumorSim(unittest.TestCase):
     def test_basic_sim(self):
-        tree = SNVtree(100,[1,5,4,6],[0,0,.25,.75])
+        tree = SNVtree(100,False,[1,5,4,6],[0,0,.25,.75])
         tree.run()
         print(f'Number of cells is {len(tree.get_cells())}')
         self.assertEqual(len(tree.get_cells()),100)
