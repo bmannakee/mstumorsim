@@ -22,7 +22,8 @@ class Mutation:
 
 class Cell:
        # TODO: add bozic parameters Should mutations be their own object. With ID and spectrum? '''
-        def __init__(self,mut_rate,parent,spectrum=None,mutations=None):
+        def __init__(self,mut_rate,parent,is_empty=False,spectrum=None,mutations=None):
+           self.is_empyt = is_empty
            self.rep_rate = 2 # Cells just divide
            self.dormant = False
            self.mr = mut_rate
@@ -31,25 +32,34 @@ class Cell:
            self.parent_id = parent
            self.spectrum = spectrum # Each cell has a spectrum and division generates mutations from that spectrum
 
-        def reproduce(self,new_sigs):
+        def reproduce(self,new_sigs=None):
          # This is where we reproduce TODO: add bozic parameters '''
            # a d/b ratio of .72 implies 72 deaths per 100
            # births. bernoulli(.58) gets that. 
             daughters = []
-            tmp_spec = Spectrum(new_sigs)
-            if np.array_equal(tmp_spec.sigs,self.spectrum.sigs):
-                rep = bernoulli.rvs(size=1,p=0.58) #  d/1-d=.72 gives, b=.58, d=.42
+            if self.is_empty:
+                ## Generating an empty tree
+                rep = bernoulli.rvs(size=1,p=0.58)
+                if (rep==1 and not self.dormant):
+                    for i in range(self.rep_rate):
+                        daughter = Cell(mut_rate = self.mr,parent = self.id, is_empty = True)
+                        daughters.append(daughter)
             else:
-                # if sigs change, force at least the initial reproduction
-                rep = 1
-            if (rep==1 and not self.dormant):
-                for i in range(self.rep_rate):
-                    new_mutations = [Mutation(tmp_spec.spectrum) for x in range(self.mr)]
-                    daughter = Cell(mut_rate = self.mr,parent = self.id,spectrum = tmp_spec,mutations = new_mutations)
-                    daughters.append(daughter)
-            else:
-                self.dormant = True # Safety issues to work out here. should be private?
-                return(daughters)
+                ## Not generating an empty tree
+                tmp_spec = Spectrum(new_sigs)
+                if np.array_equal(tmp_spec.sigs,self.spectrum.sigs):
+                    rep = bernoulli.rvs(size=1,p=0.58) #  d/1-d=.72 gives, b=.58, d=.42
+                else:
+                    # if sigs change, force at least the initial reproduction
+                    rep = 1
+                if (rep==1 and not self.dormant):
+                    for i in range(self.rep_rate):
+                        new_mutations = [Mutation(tmp_spec.spectrum) for x in range(self.mr)]
+                        daughter = Cell(mut_rate = self.mr,parent = self.id,spectrum = tmp_spec,mutations = new_mutations)
+                        daughters.append(daughter)
+                else:
+                    self.dormant = True # Safety issues to work out here. should be private?
+                    return(daughters)
             return(daughters)
         
         def get_mutations(self):
@@ -70,6 +80,7 @@ class SNVtree:
                     timepoint 0 for signatures present at initiation, .25 for sigs appearing after 25% of
                     cells have accumulated, and so on.
         '''
+        self.make_empty = empty
         self.input_sigs = np.array(sigs)
         self.input_timepoints = np.array(timepoints)
         self.init_sigs = self.input_sigs[np.where(self.input_timepoints == 0.)]
@@ -81,30 +92,43 @@ class SNVtree:
         self.queue = deque()
         # seed with enough cells to survive. All have parent 1, and 2 different mutations.
         # here 1 is like a stem cell. TODO: more elegant way to do this?
-        initial_cells = [Cell(mut_rate = 2, parent = 1,spectrum = self.init_spectrum, \
-                         mutations = [Mutation(self.init_spectrum.spectrum),Mutation(self.init_spectrum.spectrum)]) \
-                         for i in range(10)] 
+        if self.make_empty:
+            initial_cells = [Cell(mut_rate=2,parent=1,is_empty=True) for i in range(10)]
+        else:
+            initial_cells = [Cell(mut_rate = 2, parent = 1,spectrum = self.init_spectrum, \
+                            mutations = [Mutation(self.init_spectrum.spectrum),Mutation(self.init_spectrum.spectrum)]) \
+                            for i in range(10)] 
         self.queue.extend(initial_cells)
 
 
 
     def run(self):
-        while len(self.queue) < self.n:
-            c = self.queue.popleft()
-            # test for dormancy here to speed things up
-            if c.dormant:
-                # Try not adding the dormant/dead cell back.
-                # This should be much slower
-                #self.queue.append(c)
-                continue
-            if self._test_for_new_spectrum(len(self.queue)):
-                # Awkward, we already incremented timepoint index
-                new_sigs = np.append(c.get_sigs(),self.add_sigs[self.next_timepoint_index - 1])  
-            else:
-                new_sigs = c.get_sigs()
-            new_cells = c.reproduce(new_sigs)
-            self.queue.append(c) # Push current cell back onto the end of the queue. If cell is marked dormant it will never reproduce
-            self.queue.extend(new_cells)
+        if self.make_empty:
+            while len(self.queue) < self.n:
+                c = self.queue.popleft()
+                if c.dormant:
+                    continue
+                else:
+                    new_cells = c.reproduce()
+                    self.queue.append(c)
+                    self.queue.extend(new_cells)
+        else:
+            while len(self.queue) < self.n:
+                c = self.queue.popleft()
+                # test for dormancy here to speed things up
+                if c.dormant:
+                    # Try not adding the dormant/dead cell back.
+                    # This should be much slower. IT ISNT
+                    #self.queue.append(c)
+                    continue
+                if self._test_for_new_spectrum(len(self.queue)):
+                    # Awkward, we already incremented timepoint index
+                    new_sigs = np.append(c.get_sigs(),self.add_sigs[self.next_timepoint_index - 1])  
+                else:
+                    new_sigs = c.get_sigs()
+                new_cells = c.reproduce(new_sigs)
+                self.queue.append(c) # Push current cell back onto the end of the queue. If cell is marked dormant it will never reproduce
+                self.queue.extend(new_cells)
 
 
     def get_cells(self):

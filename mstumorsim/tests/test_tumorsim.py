@@ -14,6 +14,11 @@ class TestTumorSim(unittest.TestCase):
         self.assertGreaterEqual(len(tree.get_cells()),100)
         self.assertLessEqual(len(tree.get_cells()),102)
 
+    def test_empty_tree(self):
+        tree = SNVtree(100,empty=True)
+        self.assertGreaterEqual(len(tree.get_cells()),100)
+        self.assertLessEqual(len(tree.get_cells()),102)
+
     def test_spectrum(self):
         spec = utils.get_spectrum([1,5])
         print(f'Length of spectrum is {len(spec)}')
