@@ -16,6 +16,7 @@ class TestTumorSim(unittest.TestCase):
 
     def test_empty_tree(self):
         tree = SNVtree(100,empty=True)
+        tree.run()
         self.assertGreaterEqual(len(tree.get_cells()),100)
         self.assertLessEqual(len(tree.get_cells()),102)
 
