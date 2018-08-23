@@ -81,13 +81,22 @@ class SNVtree:
                     cells have accumulated, and so on.
         '''
         self.make_empty = empty
-        self.input_sigs = np.array(sigs)
-        self.input_timepoints = np.array(timepoints)
-        self.init_sigs = self.input_sigs[np.where(self.input_timepoints == 0.)]
-        self.init_spectrum = Spectrum(self.init_sigs)
-        self.add_sigs = self.input_sigs[np.where(self.input_timepoints > 0.)]
-        self.add_timepoints = self.input_timepoints[np.where(self.input_timepoints > 0.)]
-        self.next_timepoint_index = 0
+        if not self.make_empty:
+            self.input_sigs = np.array(sigs)
+            self.input_timepoints = np.array(timepoints)
+            self.init_sigs = self.input_sigs[np.where(self.input_timepoints == 0.)]
+            self.init_spectrum = Spectrum(self.init_sigs)
+            self.add_sigs = self.input_sigs[np.where(self.input_timepoints > 0.)]
+            self.add_timepoints = self.input_timepoints[np.where(self.input_timepoints > 0.)]
+            self.next_timepoint_index = 0
+        else:
+            self.input_sigs = None
+            self.input_timepoints = None
+            self.init_sigs = None
+            self.init_spectrum = None
+            self.add_sigs = None
+            self.add_timepoints = None
+            self.next_timepoint_index = None
         self.n = num_cells
         self.queue = deque()
         # seed with enough cells to survive. All have parent 1, and 2 different mutations.
