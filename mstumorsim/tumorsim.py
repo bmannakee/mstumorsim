@@ -23,7 +23,7 @@ class Mutation:
 class Cell:
        # TODO: add bozic parameters Should mutations be their own object. With ID and spectrum? '''
         def __init__(self,mut_rate,parent,is_empty=False,spectrum=None,mutations=None):
-           self.is_empyt = is_empty
+           self.is_empty = is_empty
            self.rep_rate = 2 # Cells just divide
            self.dormant = False
            self.mr = mut_rate
