@@ -32,14 +32,19 @@ class Cell:
            self.parent_id = parent
            self.spectrum = spectrum # Each cell has a spectrum and division generates mutations from that spectrum
 
-        def reproduce(self,new_sigs=None):
+        def reproduce(self,new_sigs=None, force=False):
          # This is where we reproduce TODO: add bozic parameters '''
            # a d/b ratio of .72 implies 72 deaths per 100
            # births. bernoulli(.58) gets that. 
+           # force = True forces reproduction, useful for starting new tree
             daughters = []
             if self.is_empty:
                 ## Generating an empty tree
-                rep = bernoulli.rvs(size=1,p=0.58)
+                if force:
+                    rep = 1
+                else:
+                    rep = bernoulli.rvs(size=1,p=0.58)
+
                 if (rep==1 and not self.dormant):
                     for i in range(self.rep_rate):
                         daughter = Cell(mut_rate = self.mr,parent = self.id, is_empty = True)
@@ -47,7 +52,7 @@ class Cell:
             else:
                 ## Not generating an empty tree
                 tmp_spec = Spectrum(new_sigs)
-                if np.array_equal(tmp_spec.sigs,self.spectrum.sigs):
+                if (np.array_equal(tmp_spec.sigs,self.spectrum.sigs) and not force):
                     rep = bernoulli.rvs(size=1,p=0.58) #  d/1-d=.72 gives, b=.58, d=.42
                 else:
                     # if sigs change, force at least the initial reproduction
@@ -100,20 +105,29 @@ class SNVtree:
             self.next_timepoint_index = None
         self.n = num_cells
         self.queue = deque()
-        # seed with enough cells to survive. All have parent 1, and 2 different mutations.
-        # here 1 is like a stem cell. TODO: more elegant way to do this?
+        # Begin with a single cell with parent = 1. during the run force the first 100 cells to reproduce
         if self.make_empty:
-            initial_cells = [Cell(mut_rate=2,parent=1,is_empty=True) for i in range(10)]
+            initial_cell = [Cell(mut_rate=2,parent=1,is_empty=True)]
         else:
-            initial_cells = [Cell(mut_rate = 2, parent = 1,spectrum = self.init_spectrum, \
-                            mutations = [Mutation(self.init_spectrum.spectrum),Mutation(self.init_spectrum.spectrum)]) \
-                            for i in range(10)] 
-        self.queue.extend(initial_cells)
+            initial_cell = [Cell(mut_rate = 2, parent = 1,spectrum = self.init_spectrum, \
+                            mutations = [Mutation(self.init_spectrum.spectrum),Mutation(self.init_spectrum.spectrum)])] 
+                            
+        self.queue.extend(initial_cell)
 
 
 
     def run(self):
         if self.make_empty:
+            while len(self.queue) < 100:
+                # Get the tree started with 100 cells that are gauranteed to reproduce
+                c = self.queue.popleft()
+                if c.dormant:
+                    continue
+                else:
+                    new_cells = c.reproduce(force=True)
+                    self.queue.append(c)
+                    self.queue.extend(new_cells)
+
             while len(self.queue) < self.n:
                 c = self.queue.popleft()
                 if c.dormant:
@@ -123,6 +137,17 @@ class SNVtree:
                     self.queue.append(c)
                     self.queue.extend(new_cells)
         else:
+            while len(self.queue) < 100:
+                # Get the tree started with 100 cells that are gauranteed to reproduce
+                c = self.queue.popleft()
+                if c.dormant:
+                    continue
+                else:
+                    new_sigs = c.get_sigs()
+                    new_cells = c.reproduce(new_sigs = new_sigs, force = True)
+                    self.queue.append(c)
+                    self.queue.extend(new_cells)
+                # Get the tree started with 100 cells that are gauranteed to reproduce
             while len(self.queue) < self.n:
                 c = self.queue.popleft()
                 # test for dormancy here to speed things up

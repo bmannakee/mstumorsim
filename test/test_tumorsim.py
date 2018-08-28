@@ -8,17 +8,17 @@ from mstumorsim.tumorsim import SNVtree
 
 class TestTumorSim(unittest.TestCase):
     def test_basic_sim(self):
-        tree = SNVtree(100,empty=False,sigs=[1,5,4,6],timepoints=[0,0,.25,.75])
+        tree = SNVtree(1000,empty=False,sigs=[1,5,4,6],timepoints=[0,0,.25,.75])
         tree.run()
         print(f'Number of cells is {len(tree.get_cells())}')
-        self.assertGreaterEqual(len(tree.get_cells()),100)
-        self.assertLessEqual(len(tree.get_cells()),102)
+        self.assertGreaterEqual(len(tree.get_cells()),1000)
+        self.assertLessEqual(len(tree.get_cells()),1002)
 
     def test_empty_tree(self):
-        tree = SNVtree(100,empty=True)
+        tree = SNVtree(1000,empty=True)
         tree.run()
-        self.assertGreaterEqual(len(tree.get_cells()),100)
-        self.assertLessEqual(len(tree.get_cells()),102)
+        self.assertGreaterEqual(len(tree.get_cells()),1000)
+        self.assertLessEqual(len(tree.get_cells()),1002)
 
     def test_spectrum(self):
         spec = utils.get_spectrum([1,5])
