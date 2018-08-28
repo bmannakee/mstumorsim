@@ -142,7 +142,8 @@ class SNVtree:
                 if c.dormant:
                     continue
                 else:
-                    new_cells = c.reproduce(force=True)
+                    new_sigs = c.get_sigs()
+                    new_cells = c.reproduce(new_sigs = new_sigs, force = True)
                     self.queue.append(c)
                     self.queue.extend(new_cells)
                 # Get the tree started with 100 cells that are gauranteed to reproduce
