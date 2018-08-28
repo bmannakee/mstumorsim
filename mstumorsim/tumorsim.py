@@ -41,7 +41,7 @@ class Cell:
             if self.is_empty:
                 ## Generating an empty tree
                 if force:
-                    ref = 1
+                    rep = 1
                 else:
                     rep = bernoulli.rvs(size=1,p=0.58)
 
@@ -52,7 +52,7 @@ class Cell:
             else:
                 ## Not generating an empty tree
                 tmp_spec = Spectrum(new_sigs)
-                if np.array_equal(tmp_spec.sigs,self.spectrum.sigs) and not force:
+                if (np.array_equal(tmp_spec.sigs,self.spectrum.sigs) and not force):
                     rep = bernoulli.rvs(size=1,p=0.58) #  d/1-d=.72 gives, b=.58, d=.42
                 else:
                     # if sigs change, force at least the initial reproduction
