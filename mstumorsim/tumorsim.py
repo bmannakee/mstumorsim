@@ -106,10 +106,10 @@ class SNVtree:
         self.queue = deque()
         # Begin with a single cell with parent = 1. during the run force the first 100 cells to reproduce
         if self.make_empty:
-            initial_cell = Cell(mut_rate=2,parent=1,is_empty=True)
+            initial_cell = [Cell(mut_rate=2,parent=1,is_empty=True)]
         else:
-            initial_cell = Cell(mut_rate = 2, parent = 1,spectrum = self.init_spectrum, \
-                            mutations = [Mutation(self.init_spectrum.spectrum),Mutation(self.init_spectrum.spectrum)]) 
+            initial_cell = [Cell(mut_rate = 2, parent = 1,spectrum = self.init_spectrum, \
+                            mutations = [Mutation(self.init_spectrum.spectrum),Mutation(self.init_spectrum.spectrum)])] 
                             
         self.queue.extend(initial_cell)
 
