@@ -116,7 +116,7 @@ class SNVtree:
 
     def run(self):
         if self.make_empty:
-            while len(self.queue) < 100:
+            while len(self.queue) < 10:
                 # Get the tree started with 100 cells that are gauranteed to reproduce
                 c = self.queue.popleft()
                 if c.dormant:
@@ -135,7 +135,7 @@ class SNVtree:
                     self.queue.append(c)
                     self.queue.extend(new_cells)
         else:
-            while len(self.queue) < 100:
+            while len(self.queue) < 10:
                 # Get the tree started with 100 cells that are gauranteed to reproduce
                 c = self.queue.popleft()
                 if c.dormant:
