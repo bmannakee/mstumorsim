@@ -1,4 +1,4 @@
-from collections import deque
+from collections import deque, Counter
 from uuid import uuid4
 from scipy.stats import bernoulli, multinomial
 import numpy as np
@@ -166,17 +166,25 @@ class SNVtree:
 
     def get_cells(self):
         return list(self.queue)
-    
+
+    def get_mutations(self):
+        # Should return a list of tuples
+        # (mutation_id, mutation_class, population_AF)
+        cells = self.get_cells()
+        mutations = []
+        for cell in cells:
+            mutations.extend(cell.get_mutations())
+        return mutations    
 
     def get_graph(self):
-        tree = nx.DiGraph()
-        tree.add_node(1,)
+        g = nx.DiGraph()
+        g.add_node(1,)
         nodes = self.get_cells()
         for node in nodes:
-            tree.add_node(node.id,cell=node)
+            g.add_node(node.id,cell=node)
         edges = [(node.parent_id,node.id) for node in nodes]
-        tree.add_edges_from(edges)
-        return(tree)
+        g.add_edges_from(edges)
+        return(g)
         
     def _test_for_new_spectrum(self, ncells):
         # We reproduce at rate 2, so there is no guarantee

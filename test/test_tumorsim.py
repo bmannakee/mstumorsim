@@ -27,5 +27,12 @@ class TestTumorSim(unittest.TestCase):
         self.assertEqual(len(spec),96)
         self.assertAlmostEqual(sum(spec),1)
 
+    def test_get_mutations(self):
+        tree = SNVtree(1000,empty=False,sigs=[1,5,4,6],timepoints=[0,0,.25,.75])
+        tree.run()
+        m = tree.get_mutations()
+        self.assertIsInstance(m,list) 
+        # Add code to check tuples once they are written
+
 if __name__ == '__main__':
     unittest.main()
