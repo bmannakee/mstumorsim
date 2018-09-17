@@ -37,7 +37,7 @@ class Cell:
            # a d/b ratio of .72 implies 72 deaths per 100
            # births. bernoulli(.58) gets that. 
            # force = True forces reproduction, useful for starting new tree
-            daughters = []
+            daughters = [] # Daughters has to be an iterable even if empty
             if self.is_empty:
                 ## Generating an empty tree
                 if force:
@@ -64,7 +64,6 @@ class Cell:
                         daughters.append(daughter)
                 else:
                     self.dormant = True # Safety issues to work out here. should be private?
-                    return(daughters)
             return(daughters)
         
         def get_mutations(self):
@@ -118,7 +117,7 @@ class SNVtree:
 
     def run(self):
         if self.make_empty:
-            while len(self.queue) < 100:
+            while len(self.queue) < 10:
                 # Get the tree started with 100 cells that are gauranteed to reproduce
                 c = self.queue.popleft()
                 if c.dormant:
@@ -137,7 +136,7 @@ class SNVtree:
                     self.queue.append(c)
                     self.queue.extend(new_cells)
         else:
-            while len(self.queue) < 100:
+            while len(self.queue) < 10:
                 # Get the tree started with 100 cells that are gauranteed to reproduce
                 c = self.queue.popleft()
                 if c.dormant:
@@ -161,7 +160,7 @@ class SNVtree:
                     new_sigs = np.append(c.get_sigs(),self.add_sigs[self.next_timepoint_index - 1])  
                 else:
                     new_sigs = c.get_sigs()
-                new_cells = c.reproduce(new_sigs)
+                new_cells = c.reproduce(new_sigs = new_sigs)
                 self.queue.append(c) # Push current cell back onto the end of the queue. If cell is marked dormant it will never reproduce
                 self.queue.extend(new_cells)
 
