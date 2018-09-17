@@ -83,6 +83,7 @@ class SNVtree:
     def __init__(self,num_cells,empty=False,sigs=None,timepoints=None):
         '''
         num_cells: The total number of cells in the tree at completion
+        empty: Bool - True to create a tree of empty cells, False to simulate cells with mutations.
         sigs: List of integers (1-30) specifying the COSMIC mutational signatures to include in the tumor
         timepoints: List of floats the same length as "sigs" at which the signature should become active.
                     timepoint 0 for signatures present at initiation, .25 for sigs appearing after 25% of
@@ -132,7 +133,7 @@ class SNVtree:
             while len(self.queue) < self.n:
                 c = self.queue.popleft()
                 if c.dormant:
-                    continue
+                    self.queue.append(c)   
                 else:
                     new_cells = c.reproduce()
                     self.queue.append(c)
