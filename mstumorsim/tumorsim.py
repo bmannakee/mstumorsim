@@ -130,7 +130,7 @@ class SNVtree:
             while len(self.queue) < self.n:
                 c = self.queue.popleft()
                 if c.dormant:
-                    continue
+                    self.queue.append(c)   
                 else:
                     new_cells = c.reproduce()
                     self.queue.append(c)
