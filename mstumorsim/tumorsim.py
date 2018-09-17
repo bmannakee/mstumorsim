@@ -23,14 +23,14 @@ class Mutation:
 class Cell:
        # TODO: add bozic parameters Should mutations be their own object. With ID and spectrum? '''
         def __init__(self,mut_rate,parent,is_empty=False,spectrum=None,mutations=None):
-           self.is_empty = is_empty
-           self.rep_rate = 2 # Cells just divide
-           self.dormant = False
-           self.mr = mut_rate
-           self.mutations = mutations
-           self.id = str(uuid4())
-           self.parent_id = parent
-           self.spectrum = spectrum # Each cell has a spectrum and division generates mutations from that spectrum
+            self.is_empty = is_empty
+            self.rep_rate = 2 # Cells just divide
+            self.dormant = False
+            self.mr = mut_rate
+            self.mutations = mutations
+            self.id = str(uuid4())
+            self.parent_id = parent
+            self.spectrum = spectrum # Each cell has a spectrum and division generates mutations from that spectrum
 
         def reproduce(self,new_sigs=None, force=False):
          # This is where we reproduce TODO: add bozic parameters '''
@@ -59,7 +59,8 @@ class Cell:
                     rep = 1
                 if (rep==1 and not self.dormant):
                     for i in range(self.rep_rate):
-                        new_mutations = [Mutation(tmp_spec.spectrum) for x in range(self.mr)]
+                        current_mutations = self.mutations
+                        new_mutations = current_mutations.extend([Mutation(tmp_spec.spectrum) for x in list(range(1,self.mr+1))])
                         daughter = Cell(mut_rate = self.mr,parent = self.id,spectrum = tmp_spec,mutations = new_mutations)
                         daughters.append(daughter)
                 else:
@@ -71,7 +72,10 @@ class Cell:
 
         def get_sigs(self):
             return self.spectrum.sigs
-
+#######
+# Something is bad wacked with the mutations code.
+# Halt and catch fire
+#######
 
 class SNVtree:
    # A tree that does stuff. More documentation please '''
@@ -107,8 +111,7 @@ class SNVtree:
         if self.make_empty:
             initial_cell = [Cell(mut_rate=2,parent=1,is_empty=True)]
         else:
-            initial_cell = [Cell(mut_rate = 2, parent = 1,spectrum = self.init_spectrum, \
-                            mutations = [Mutation(self.init_spectrum.spectrum),Mutation(self.init_spectrum.spectrum)])] 
+            initial_cell = [Cell(mut_rate = 2, parent = 1,spectrum = self.init_spectrum, mutations = [Mutation(self.init_spectrum.spectrum),Mutation(self.init_spectrum.spectrum)])] 
                             
         self.queue.extend(initial_cell)
 
@@ -174,7 +177,17 @@ class SNVtree:
         mutations = []
         for cell in cells:
             mutations.extend(cell.get_mutations())
-        return mutations    
+        return(mutations)
+    
+    def get_mutation_vaf(self,min_vaf = 0.05):
+        mc = Counter(self.get_mutations())
+        mcount = []
+        for k,v in mc.items():
+            vaf = v/len(self.get_cells())
+            if vaf < min_vaf:
+                continue
+            mcount.append((k[0],k[1],vaf))
+        return mcount
 
     def get_graph(self):
         g = nx.DiGraph()
