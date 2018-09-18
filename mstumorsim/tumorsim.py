@@ -27,7 +27,10 @@ class Cell:
             self.rep_rate = 2 # Cells just divide
             self.dormant = False
             self.mr = mut_rate
-            self.mutations = mutations
+            if mutations == None:
+                self.mutations = []
+            else:
+                self.mutations = mutations
             self.id = str(uuid4())
             self.parent_id = parent
             self.spectrum = spectrum # Each cell has a spectrum and division generates mutations from that spectrum
@@ -60,8 +63,8 @@ class Cell:
                 if (rep==1 and not self.dormant):
                     for i in range(self.rep_rate):
                         current_mutations = self.mutations
-                        new_mutations = current_mutations.extend([Mutation(tmp_spec.spectrum) for x in list(range(1,self.mr+1))])
-                        daughter = Cell(mut_rate = self.mr,parent = self.id,spectrum = tmp_spec,mutations = new_mutations)
+                        current_mutations.extend([Mutation(tmp_spec.spectrum),Mutation(tmp_spec.spectrum)])
+                        daughter = Cell(mut_rate = self.mr,parent = self.id,is_empty = False, spectrum = tmp_spec,mutations =current_mutations)
                         daughters.append(daughter)
                 else:
                     self.dormant = True # Safety issues to work out here. should be private?
@@ -70,6 +73,9 @@ class Cell:
         def get_mutations(self):
             return([(m.id,m.mutation_class) for m in self.mutations])
 
+        def get_mutation_ids(self):
+            return(m.id for m in self.mutations)
+            
         def get_sigs(self):
             return self.spectrum.sigs
 #######
@@ -124,6 +130,7 @@ class SNVtree:
                 # Get the tree started with 100 cells that are gauranteed to reproduce
                 c = self.queue.popleft()
                 if c.dormant:
+                    self.queue.append(c)
                     continue
                 else:
                     new_cells = c.reproduce(force=True)
@@ -143,6 +150,7 @@ class SNVtree:
                 # Get the tree started with 100 cells that are gauranteed to reproduce
                 c = self.queue.popleft()
                 if c.dormant:
+                    self.queue.append(c)
                     continue
                 else:
                     new_sigs = c.get_sigs()
@@ -153,10 +161,8 @@ class SNVtree:
             while len(self.queue) < self.n:
                 c = self.queue.popleft()
                 # test for dormancy here to speed things up
-                if c.dormant:
-                    # Try not adding the dormant/dead cell back.
-                    # This should be much slower. IT ISNT
-                    #self.queue.append(c)
+                if c.dormant:   
+                    self.queue.append(c)
                     continue
                 if self._test_for_new_spectrum(len(self.queue)):
                     # Awkward, we already incremented timepoint index
@@ -179,15 +185,26 @@ class SNVtree:
         for cell in cells:
             mutations.extend(cell.get_mutations())
         return(mutations)
+        
+    def get_mutation_ids(self):
+        # Should return a list of tuples
+        # (mutation_id, mutation_class, population_AF)
+        cells = self.get_cells()
+        mutations = []
+        for cell in cells:
+            mutations.extend(cell.get_mutation_ids())
+        return(mutations)
     
-    def get_mutation_vaf(self,min_vaf = 0.05):
+    def get_mutation_vafs(self,min_vaf = 0.01):
         mc = Counter(self.get_mutations())
+        print("most common")
+        print(mc.most_common())
         mcount = []
         for k,v in mc.items():
-            vaf = v/len(self.get_cells())
+            vaf = float(k[1]/len(self.get_cells()))
             if vaf < min_vaf:
                 continue
-            mcount.append((k[0],k[1],vaf))
+            mcount.append((k[0],vaf))
         return mcount
 
     def get_graph(self):

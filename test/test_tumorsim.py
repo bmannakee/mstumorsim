@@ -38,7 +38,7 @@ class TestTumorSim(unittest.TestCase):
     def test_get_vaf(self):
         tree = SNVtree(1000,empty=False,sigs=[1,5,4,6],timepoints=[0,0,.25,.75])
         tree.run()
-        mcount = tree.get_mutation_vaf()
+        mcount = tree.get_mutation_vafs()
         self.assertIsInstance(mcount,list)
         self.assertIsInstance(mcount[0],tuple)
 
