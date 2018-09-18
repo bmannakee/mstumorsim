@@ -157,7 +157,7 @@ class SNVtree:
                     new_cells = c.reproduce(new_sigs = new_sigs, force = True)
                     self.queue.append(c)
                     self.queue.extend(new_cells)
-                # Get the tree started with 100 cells that are gauranteed to reproduce
+                # Get the tree started with 10 cells that are gauranteed to reproduce
             while len(self.queue) < self.n:
                 c = self.queue.popleft()
                 # test for dormancy here to speed things up
@@ -196,12 +196,12 @@ class SNVtree:
         return(mutations)
     
     def get_mutation_vafs(self,min_vaf = 0.01):
-        mc = Counter(self.get_mutations())
+        mc = Counter(self.get_mutation_ids())
         print("most common")
         print(mc.most_common())
         mcount = []
         for k,v in mc.items():
-            vaf = float(k[1]/len(self.get_cells()))
+            vaf = float(v/len(self.get_cells()))
             if vaf < min_vaf:
                 continue
             mcount.append((k[0],vaf))
