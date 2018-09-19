@@ -3,6 +3,7 @@ from uuid import uuid4
 from scipy.stats import bernoulli, multinomial
 import numpy as np
 import networkx as nx
+import copy
 from mstumorsim.utils import get_spectrum
 
 class Spectrum:
@@ -62,7 +63,7 @@ class Cell:
                     rep = 1
                 if (rep==1 and not self.dormant):
                     for i in range(self.rep_rate):
-                        current_mutations = self.mutations
+                        current_mutations = copy.deepcopy(self.mutations)
                         current_mutations.extend([Mutation(tmp_spec.spectrum),Mutation(tmp_spec.spectrum)])
                         daughter = Cell(mut_rate = self.mr,parent = self.id,is_empty = False, spectrum = tmp_spec,mutations =current_mutations)
                         daughters.append(daughter)
@@ -169,7 +170,7 @@ class SNVtree:
                     new_sigs = np.append(c.get_sigs(),self.add_sigs[self.next_timepoint_index - 1])  
                 else:
                     new_sigs = c.get_sigs()
-                new_cells = c.reproduce(new_sigs = new_sigs)
+                new_cells = c.reproduce(new_sigs = new_sigs, force = False)
                 self.queue.append(c) # Push current cell back onto the end of the queue. If cell is marked dormant it will never reproduce
                 self.queue.extend(new_cells)
 
@@ -196,15 +197,13 @@ class SNVtree:
         return(mutations)
     
     def get_mutation_vafs(self,min_vaf = 0.01):
-        mc = Counter(self.get_mutation_ids())
-        print("most common")
-        print(mc.most_common())
+        mc = Counter(self.get_mutations())
         mcount = []
         for k,v in mc.items():
             vaf = float(v/len(self.get_cells()))
             if vaf < min_vaf:
                 continue
-            mcount.append((k[0],vaf))
+            mcount.append((k,vaf))
         return mcount
 
     def get_graph(self):
