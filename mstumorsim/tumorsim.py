@@ -4,7 +4,7 @@ from scipy.stats import bernoulli, multinomial
 import numpy as np
 import networkx as nx
 import copy
-from mstumorsim.utils import get_spectrum
+from mstumorsim.utils import get_spectrum, load_mutations
 
 class Spectrum:
     def __init__(self,sigs):
@@ -215,7 +215,20 @@ class SNVtree:
         edges = [(node.parent_id,node.id) for node in nodes]
         g.add_edges_from(edges)
         return(g)
+
+    def write_bed(bed_file, chr_style = "UCSC",min_vaf = 0.01)
+        # Gather all of the mutations from this tree that
+        # have a vaf exceeding min_vaf, and write a bed
+        # file with vaf in the format required by bamsurgeon
+        # where chromosome names are in UCSC or NCBI style
+        mutation_vafs = self.get_mutation_vafs(min_vaf = min_vaf)
+        fr = pandas.DataFrame.from_records(mutation_vafs)
+        fr[['mut_id','mut_class']] = fr[0].apply(pandas.Series)
+        fr['vaf'] = fr[1]
+        fr = fr[['mut_id','mut_class','vaf']]
         
+        return
+
     def _test_for_new_spectrum(self, ncells):
         # We reproduce at rate 2, so there is no guarantee
         # that we will hit the add index exactly

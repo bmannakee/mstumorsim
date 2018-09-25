@@ -1,2 +1,3 @@
 **/**/*.cpython-36.pyc
 mstumorsim/data/mutations_with_contexts_GRCh38.tsv
+mstumorsim/data/mutation_dict.pkl
