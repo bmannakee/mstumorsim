@@ -4,6 +4,8 @@ import pickle
 
 this_path,this_file = os.path.split(__file__)
 SIG_FILE = os.path.join(this_path,'data','signatures_probabilities.txt')
+MUT_PICKLE = os.path.join(this_path,'data','mutation_dict.pkl')
+MUT_TSV = os.path.join(this_path,'data','mutations_with_contexts_GRCh38.tsv')
 
 def load_signatures():
     sigs = pandas.read_table(SIG_FILE)
@@ -23,14 +25,14 @@ def get_spectrum(sigs):
 
 # Load mutations into a dictionary where key is the mutation class
 # and value is a list of mutations.
-def load_mutations(from_pickle = True, mutation_file = "./data/mutations_with_contexts_GRCh38.tsv"):
+def load_mutations(from_pickle = True, mutation_file = MUT_TSV):
     if from_pickle:
-        mdict = pickle.load(open("data/mutation_dict.pkl", "rb"))
+        mdict = pickle.load(open(MUT_PICKLE, "rb"))
     else:
         # bring everything in as a string
         fr = pandas.read_table(mfile,  dtype = "object").dropna()
         # make a single field chr_start_stop_ref_alt
         fr['mutation'] = fr[['chr','start','end','ref','alt']].apply(lambda x: '_'.join(x), axis = 1)
         mdict = {k: list(v) for k,v in fr.groupby("context_id")["mutation"]}
-        pickle.dump(mdict, open("data/mutation_dict.pkl", "wb"))
-    retun(mdict)
+        pickle.dump(mdict, open(MUT_PICKLE, "wb"))
+    return(mdict)

@@ -5,7 +5,8 @@ import numpy as np
 import networkx as nx
 import copy
 from mstumorsim.utils import get_spectrum, load_mutations
-
+import pandas
+import random
 class Spectrum:
     def __init__(self,sigs):
         self.sigs = sigs
@@ -216,18 +217,42 @@ class SNVtree:
         g.add_edges_from(edges)
         return(g)
 
-    def write_bed(bed_file, chr_style = "UCSC",min_vaf = 0.01)
+    def make_bed(self, chr_style = "UCSC",min_vaf = 0.01):
         # Gather all of the mutations from this tree that
         # have a vaf exceeding min_vaf, and write a bed
         # file with vaf in the format required by bamsurgeon
         # where chromosome names are in UCSC or NCBI style
         mutation_vafs = self.get_mutation_vafs(min_vaf = min_vaf)
+        print('got mutations')
         fr = pandas.DataFrame.from_records(mutation_vafs)
+        print('made data frame')
         fr[['mut_id','mut_class']] = fr[0].apply(pandas.Series)
         fr['vaf'] = fr[1]
         fr = fr[['mut_id','mut_class','vaf']]
+        mdict = load_mutations()
         
-        return
+        # lambda function that takes in a mutation class
+        # and returns a single random mutation from that class
+        get_mutation = lambda x: mdict[str(x)][random.sample(range(len(mdict[str(x)])),1)[0]]
+        print("pulling mutations")
+        fr["mutation"] = fr["mut_class"].apply(get_mutation)
+        print("expanding mutations")
+        fr = fr.join(fr["mutation"].str.split('_', expand = True))
+        fr.rename(columns = {0:"chr", 1:"start", 2:"end", 3:"ref", 4:"alt"}, inplace = True)
+        fr = fr[["chr","start","end","ref","alt","vaf"]]
+        if chr_style == "UCSC":
+            fr["chr"] = "chr" + fr["chr"]
+        # The sampling scheme is not guaranteed to produce unique mutations
+        # Dropping is not the best answer
+        print("dropping duplicates")
+        fr.drop_duplicates(inplace = True)
+        return(fr)
+    
+    def write_bed(self,filename,chr_style = "UCSC" , min_vaf = 0.01):
+        fr = self.make_bed(chr_style,min_vaf)
+        print("got bed frame")
+        fr.to_csv(filename, sep = "\t", index = False, header = False)
+        return 0
 
     def _test_for_new_spectrum(self, ncells):
         # We reproduce at rate 2, so there is no guarantee
