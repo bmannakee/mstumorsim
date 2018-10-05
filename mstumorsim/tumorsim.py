@@ -65,7 +65,7 @@ class Cell:
                 if (rep==1 and not self.dormant):
                     for i in range(self.rep_rate):
                         current_mutations = copy.deepcopy(self.mutations)
-                        current_mutations.extend([Mutation(tmp_spec.spectrum),Mutation(tmp_spec.spectrum)])
+                        current_mutations.extend([Mutation(tmp_spec.spectrum) for x in list(range(300))])
                         daughter = Cell(mut_rate = self.mr,parent = self.id,is_empty = False, spectrum = tmp_spec,mutations =current_mutations)
                         daughters.append(daughter)
                 else:
@@ -80,10 +80,6 @@ class Cell:
             
         def get_sigs(self):
             return self.spectrum.sigs
-#######
-# Something is bad wacked with the mutations code.
-# Halt and catch fire
-#######
 
 class SNVtree:
    # A tree that does stuff. More documentation please '''
@@ -200,8 +196,9 @@ class SNVtree:
     def get_mutation_vafs(self,min_vaf = 0.01):
         mc = Counter(self.get_mutations())
         mcount = []
+        num_cells = len(self.get_cells())
         for k,v in mc.items():
-            vaf = float(v/len(self.get_cells()))
+            vaf = float(v)/num_cells
             if vaf < min_vaf:
                 continue
             mcount.append((k,vaf))
@@ -239,7 +236,7 @@ class SNVtree:
         print("expanding mutations")
         fr = fr.join(fr["mutation"].str.split('_', expand = True))
         fr.rename(columns = {0:"chr", 1:"start", 2:"end", 3:"ref", 4:"alt"}, inplace = True)
-        fr = fr[["chr","start","end","ref","alt","vaf"]]
+        fr = fr[["chr","start","end","vaf","alt"]]
         if chr_style == "UCSC":
             fr["chr"] = "chr" + fr["chr"]
         # The sampling scheme is not guaranteed to produce unique mutations
@@ -249,7 +246,7 @@ class SNVtree:
         return(fr)
     
     def write_bed(self,filename,chr_style = "UCSC" , min_vaf = 0.01):
-        fr = self.make_bed(chr_style,min_vaf)
+        fr = self.make_bed(chr_style = chr_style, min_vaf = min_vaf)
         print("got bed frame")
         fr.to_csv(filename, sep = "\t", index = False, header = False)
         return 0
