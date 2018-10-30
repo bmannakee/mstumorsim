@@ -1,3 +1,7 @@
 **/**/*.cpython-36.pyc
 mstumorsim/data/mutations_with_contexts_GRCh38.tsv
+mstumorsim/data/wgs_mutations_with_contexts_GRCh38.tsv
+mstumorsim/data/AgilentV5-Exome_mutations_with_contexts_GRCh38.tsv
 mstumorsim/data/mutation_dict.pkl
+mstumorsim/data/wgs_mutation_dict.pkl
+mstumorsim/data/AgilentV5-Exome_mutation_dict.pkl

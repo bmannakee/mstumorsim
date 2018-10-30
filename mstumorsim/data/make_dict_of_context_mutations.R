@@ -88,3 +88,22 @@ contexts_enum <- as_tibble(t(context_ints)) %>% gather(context,context_id,everyt
 
 final_fr <- context_fr %>% left_join(contexts_enum, by='context')
 final_fr %>% write_tsv('mutations_with_contexts_GRCh38.tsv')
+
+############## Label the variants that appear in AgilentV5exome.bed
+library(fuzzyjoin) # Gives us the wonderful function genome_inner_join
+bed_file <- 'Agilent-ExomeV5.bed'
+col_spec <- cols_only(chr = "c", start = "n", end = "n")
+bed_fr <- readr::read_tsv(bed_file,col_names = c('chr','start','end','gene'), col_types = col_spec)
+# Write out the bed files (interval_list) for each chromosome to use for mutect, there is some purrr magic here.
+bed_fr %>%
+  split(.$chr) %>% # turns the data frame into a named list, one for each chromosome
+  list(names(.)) %>% # pwalk takes two vectors as arguments, this one holds the names after the split
+  pwalk(~ write_tsv(.x,paste0('./bed_by_chr/chr',.y,'.interval_list')))
+
+# Do a conditional inner join to make a data frame where only the variants within exomes are included
+final_fr <- final_fr %>% dplyr::mutate(chr = as.character(chr), start = as.numeric(start), end = as.numeric(end))
+exome_fr <- final_fr %>%
+  genome_inner_join(bed_fr, by = c('chr','start','end')) %>% # 2,422,321 variants
+  dplyr::select(-c(chr.y,start.y,end.y))
+exome_fr %>% readr::write_tsv('AgilentV5-Exome_mutations_with_contexts_GRCh38.tsv')
+

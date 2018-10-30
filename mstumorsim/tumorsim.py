@@ -24,11 +24,12 @@ class Mutation:
 
 class Cell:
        # TODO: add bozic parameters Should mutations be their own object. With ID and spectrum? '''
-        def __init__(self,mut_rate,parent,is_empty=False,spectrum=None,mutations=None):
+        def __init__(self,mut_rate,parent,is_empty=False,spectrum=None,mutations=None, seq_type = 'exome'):
             self.is_empty = is_empty
             self.rep_rate = 2 # Cells just divide
             self.dormant = False
             self.mr = mut_rate
+            self.seq_type = seq_type
             if mutations == None:
                 self.mutations = []
             else:
@@ -43,6 +44,10 @@ class Cell:
            # births. bernoulli(.58) gets that. 
            # force = True forces reproduction, useful for starting new tree
             daughters = [] # Daughters has to be an iterable even if empty
+            if self.seq_type == "exome":
+                num_muts = 3
+            else:
+                num_muts = 300
             if self.is_empty:
                 ## Generating an empty tree
                 if force:
@@ -52,7 +57,7 @@ class Cell:
 
                 if (rep==1 and not self.dormant):
                     for i in range(self.rep_rate):
-                        daughter = Cell(mut_rate = self.mr,parent = self.id, is_empty = True)
+                        daughter = Cell(mut_rate = self.mr,parent = self.id, is_empty = True, seq_type = self.seq_type)
                         daughters.append(daughter)
             else:
                 ## Not generating an empty tree
@@ -65,7 +70,7 @@ class Cell:
                 if (rep==1 and not self.dormant):
                     for i in range(self.rep_rate):
                         current_mutations = copy.deepcopy(self.mutations)
-                        current_mutations.extend([Mutation(tmp_spec.spectrum) for x in list(range(300))])
+                        current_mutations.extend([Mutation(tmp_spec.spectrum) for x in list(range(num_muts))])
                         daughter = Cell(mut_rate = self.mr,parent = self.id,is_empty = False, spectrum = tmp_spec,mutations =current_mutations)
                         daughters.append(daughter)
                 else:
@@ -84,7 +89,7 @@ class Cell:
 class SNVtree:
    # A tree that does stuff. More documentation please '''
 
-    def __init__(self,num_cells,empty=False,sigs=None,timepoints=None):
+    def __init__(self,num_cells,empty=False,sigs=None,timepoints=None,seq_type='exome'):
         '''
         num_cells: The total number of cells in the tree at completion
         empty: Bool - True to create a tree of empty cells, False to simulate cells with mutations.
@@ -102,6 +107,7 @@ class SNVtree:
             self.add_sigs = self.input_sigs[np.where(self.input_timepoints > 0.)]
             self.add_timepoints = self.input_timepoints[np.where(self.input_timepoints > 0.)]
             self.next_timepoint_index = 0
+            self.seq_type = seq_type
         else:
             self.input_sigs = None
             self.input_timepoints = None
@@ -116,7 +122,8 @@ class SNVtree:
         if self.make_empty:
             initial_cell = [Cell(mut_rate=2,parent=1,is_empty=True)]
         else:
-            initial_cell = [Cell(mut_rate = 2, parent = 1,spectrum = self.init_spectrum, mutations = [Mutation(self.init_spectrum.spectrum),Mutation(self.init_spectrum.spectrum)])] 
+            initial_cell = [Cell(seq_type = self.seq_type, mut_rate = 2, parent = 1,spectrum = self.init_spectrum, \
+                mutations = [Mutation(self.init_spectrum.spectrum),Mutation(self.init_spectrum.spectrum)])] 
                             
         self.queue.extend(initial_cell)
 
@@ -214,7 +221,7 @@ class SNVtree:
         g.add_edges_from(edges)
         return(g)
 
-    def make_bed(self, chr_style = "UCSC",min_vaf = 0.01):
+    def make_bed(self, chr_style = "UCSC",min_vaf = 0.01, from_pickle = True):
         # Gather all of the mutations from this tree that
         # have a vaf exceeding min_vaf, and write a bed
         # file with vaf in the format required by bamsurgeon
@@ -226,7 +233,10 @@ class SNVtree:
         fr[['mut_id','mut_class']] = fr[0].apply(pandas.Series)
         fr['vaf'] = fr[1]
         fr = fr[['mut_id','mut_class','vaf']]
-        mdict = load_mutations()
+        if self.seq_type == "exome":
+            mdict = load_mutations(sig_type = 'exome', from_pickle = from_pickle)
+        else:
+            mdict = load_mutations(sig_type = 'wgs', from_pickle = from_pickle) 
         
         # lambda function that takes in a mutation class
         # and returns a single random mutation from that class
@@ -245,8 +255,8 @@ class SNVtree:
         fr.drop_duplicates(inplace = True)
         return(fr)
     
-    def write_bed(self,filename,chr_style = "UCSC" , min_vaf = 0.01):
-        fr = self.make_bed(chr_style = chr_style, min_vaf = min_vaf)
+    def write_bed(self,filename,chr_style = "UCSC" , min_vaf = 0.01, from_pickle = True):
+        fr = self.make_bed(chr_style = chr_style, min_vaf = min_vaf, from_pickle = from_pickle)
         print("got bed frame")
         fr.to_csv(filename, sep = "\t", index = False, header = False)
         return 0
