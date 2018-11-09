@@ -53,7 +53,7 @@ class Cell:
                 if force:
                     rep = 1
                 else:
-                    rep = bernoulli.rvs(size=1,p=0.58)
+                    rep = bernoulli.rvs(size=1,p=0.51)
 
                 if (rep==1 and not self.dormant):
                     for i in range(self.rep_rate):
@@ -63,7 +63,7 @@ class Cell:
                 ## Not generating an empty tree
                 tmp_spec = Spectrum(new_sigs)
                 if (np.array_equal(tmp_spec.sigs,self.spectrum.sigs) and not force):
-                    rep = bernoulli.rvs(size=1,p=0.58) #  d/1-d=.72 gives, b=.58, d=.42
+                    rep = bernoulli.rvs(size=1,p=0.51) #  d/1-d=.72 gives, b=.58, d=.42
                 else:
                     # if sigs change, force at least the initial reproduction
                     rep = 1
@@ -97,6 +97,8 @@ class SNVtree:
         timepoints: List of floats the same length as "sigs" at which the signature should become active.
                     timepoint 0 for signatures present at initiation, .25 for sigs appearing after 25% of
                     cells have accumulated, and so on.
+        seq_type: one of "exome" or "wgs". Determines the mutations selected and the number of mutations
+                    per cell division
         '''
         self.make_empty = empty
         if not self.make_empty:
@@ -132,7 +134,7 @@ class SNVtree:
     def run(self):
         if self.make_empty:
             while len(self.queue) < 10:
-                # Get the tree started with 100 cells that are gauranteed to reproduce
+                # Get the tree started with 10 cells that are gauranteed to reproduce
                 c = self.queue.popleft()
                 if c.dormant:
                     self.queue.append(c)
@@ -151,8 +153,8 @@ class SNVtree:
                     self.queue.append(c)
                     self.queue.extend(new_cells)
         else:
-            while len(self.queue) < 10:
-                # Get the tree started with 100 cells that are gauranteed to reproduce
+            while len(self.queue) < 4:
+                # Get the tree started with 4 cells that are gauranteed to reproduce
                 c = self.queue.popleft()
                 if c.dormant:
                     self.queue.append(c)
@@ -164,6 +166,8 @@ class SNVtree:
                     self.queue.extend(new_cells)
                 # Get the tree started with 10 cells that are gauranteed to reproduce
             while len(self.queue) < self.n:
+                if 98 < len(self.queue) < 100:
+                    print('made it to 10')
                 c = self.queue.popleft()
                 # test for dormancy here to speed things up
                 if c.dormant:   
