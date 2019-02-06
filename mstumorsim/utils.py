@@ -3,7 +3,7 @@ import pandas
 import pickle
 
 this_path,this_file = os.path.split(__file__)
-SIG_FILE = os.path.join(this_path,'data','signatures_probabilities.txt')
+SIG_FILE = os.path.join(this_path,'data','ordered_signature_probabilities.txt')
 WGS_PICKLE = os.path.join(this_path,'data','wgs_mutation_dict.pkl')
 WGS_TSV = os.path.join(this_path,'data','wgs_mutations_with_contexts_GRCh38.tsv')
 EXOME_PICKLE = os.path.join(this_path,'data','AgilentV5-Exome_mutation_dict.pkl')

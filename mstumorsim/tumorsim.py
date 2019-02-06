@@ -45,6 +45,7 @@ class Cell:
            # force = True forces reproduction, useful for starting new tree
             daughters = [] # Daughters has to be an iterable even if empty
             if self.seq_type == "exome":
+                #num_muts = bernoulli.rvs(size=1,p=0.015)[0]
                 num_muts = 3
             else:
                 num_muts = 300
@@ -164,10 +165,10 @@ class SNVtree:
                     new_cells = c.reproduce(new_sigs = new_sigs, force = True)
                     self.queue.append(c)
                     self.queue.extend(new_cells)
-                # Get the tree started with 10 cells that are gauranteed to reproduce
+                # Get the tree started with 4 cells that are gauranteed to reproduce
             while len(self.queue) < self.n:
                 if 98 < len(self.queue) < 100:
-                    print('made it to 10')
+                    print('made it to 100')
                 c = self.queue.popleft()
                 # test for dormancy here to speed things up
                 if c.dormant:   
