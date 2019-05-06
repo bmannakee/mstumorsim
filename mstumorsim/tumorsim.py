@@ -179,7 +179,8 @@ class SNVtree:
                     new_sigs = np.append(c.get_sigs(),self.add_sigs[self.next_timepoint_index - 1])  
                 else:
                     new_sigs = c.get_sigs()
-                new_cells = c.reproduce(new_sigs = new_sigs, force = False)
+                #new_cells = c.reproduce(new_sigs = new_sigs, force = False)
+                new_cells = c.reproduce(new_sigs = new_sigs, force = True) # for faster simulation without evolution, force replication
                 self.queue.append(c) # Push current cell back onto the end of the queue. If cell is marked dormant it will never reproduce
                 self.queue.extend(new_cells)
 
@@ -251,7 +252,7 @@ class SNVtree:
         print("expanding mutations")
         fr = fr.join(fr["mutation"].str.split('_', expand = True))
         fr.rename(columns = {0:"chr", 1:"start", 2:"end", 3:"ref", 4:"alt"}, inplace = True)
-        fr = fr[["chr","start","end","vaf","alt"]]
+        fr = fr[["chr","start","end","vaf","ref","alt"]]
         if chr_style == "UCSC":
             fr["chr"] = "chr" + fr["chr"]
         # The sampling scheme is not guaranteed to produce unique mutations
