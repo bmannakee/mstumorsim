@@ -46,9 +46,9 @@ class Cell:
             daughters = [] # Daughters has to be an iterable even if empty
             if self.seq_type == "exome":
                 #num_muts = bernoulli.rvs(size=1,p=0.015)[0]
-                num_muts = 3
+                num_muts = 9 
             else:
-                num_muts = 300
+                num_muts = 900
             if self.is_empty:
                 ## Generating an empty tree
                 if force:
@@ -64,7 +64,8 @@ class Cell:
                 ## Not generating an empty tree
                 tmp_spec = Spectrum(new_sigs)
                 if (np.array_equal(tmp_spec.sigs,self.spectrum.sigs) and not force):
-                    rep = bernoulli.rvs(size=1,p=0.51) #  d/1-d=.72 gives, b=.58, d=.42
+                    #rep = bernoulli.rvs(size=1,p=0.51) #  d/1-d=.72 gives, b=.58, d=.42
+                    rep=1
                 else:
                     # if sigs change, force at least the initial reproduction
                     rep = 1
@@ -125,7 +126,7 @@ class SNVtree:
         if self.make_empty:
             initial_cell = [Cell(mut_rate=2,parent=1,is_empty=True)]
         else:
-            initial_cell = [Cell(seq_type = self.seq_type, mut_rate = 2, parent = 1,spectrum = self.init_spectrum, \
+            initial_cell = [Cell(seq_type = self.seq_type, mut_rate = 9, parent = 1,spectrum = self.init_spectrum, \
                 mutations = [Mutation(self.init_spectrum.spectrum),Mutation(self.init_spectrum.spectrum)])] 
                             
         self.queue.extend(initial_cell)
@@ -138,11 +139,11 @@ class SNVtree:
                 # Get the tree started with 10 cells that are gauranteed to reproduce
                 c = self.queue.popleft()
                 if c.dormant:
-                    self.queue.append(c)
+                    self.queue.append(c) 
                     continue
                 else:
                     new_cells = c.reproduce(force=True)
-                    self.queue.append(c)
+                    #self.queue.append(c) # NO!. Don't put it back! It divided and is gone!
                     self.queue.extend(new_cells)
 
             while len(self.queue) < self.n:
@@ -151,7 +152,7 @@ class SNVtree:
                     self.queue.append(c)   
                 else:
                     new_cells = c.reproduce()
-                    self.queue.append(c)
+                    #self.queue.append(c) # NO!. Don't put it back! It divided and is gone!
                     self.queue.extend(new_cells)
         else:
             while len(self.queue) < 4:
@@ -163,7 +164,7 @@ class SNVtree:
                 else:
                     new_sigs = c.get_sigs()
                     new_cells = c.reproduce(new_sigs = new_sigs, force = True)
-                    self.queue.append(c)
+                    #self.queue.append(c) # NO!. Don't put it back! It divided and is gone!
                     self.queue.extend(new_cells)
                 # Get the tree started with 4 cells that are gauranteed to reproduce
             while len(self.queue) < self.n:
@@ -181,7 +182,7 @@ class SNVtree:
                     new_sigs = c.get_sigs()
                 #new_cells = c.reproduce(new_sigs = new_sigs, force = False)
                 new_cells = c.reproduce(new_sigs = new_sigs, force = True) # for faster simulation without evolution, force replication
-                self.queue.append(c) # Push current cell back onto the end of the queue. If cell is marked dormant it will never reproduce
+                #self.queue.append(c) # Push current cell back onto the end of the queue. If cell is marked dormant it will never reproduce
                 self.queue.extend(new_cells)
 
 
@@ -257,8 +258,8 @@ class SNVtree:
             fr["chr"] = "chr" + fr["chr"]
         # The sampling scheme is not guaranteed to produce unique mutations
         # Dropping is not the best answer
-        print("dropping duplicates")
-        fr.drop_duplicates(inplace = True)
+        print("NOT! dropping duplicates, don't use this with bamsurgeon")
+        #fr.drop_duplicates(inplace = True)
         return(fr)
     
     def write_bed(self,filename,chr_style = "UCSC" , min_vaf = 0.01, from_pickle = True):
