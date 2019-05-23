@@ -87,9 +87,10 @@ class SNVtree:
         # Begin with current sigs = input sigs.
         # When signatures change they change for the whole tree, not just the cell.
         # Doing it for a single cell will likely be nearly invisible, but it is possible.
-        self.current_sigs = self.input_sigs
+        
         self.input_timepoints = np.array(timepoints)
         self.init_sigs = self.input_sigs[np.where(self.input_timepoints == 0.)]
+        self.current_sigs = self.init_sigs
         self.init_spectrum = Spectrum(self.init_sigs)
         self.add_sigs = self.input_sigs[np.where(self.input_timepoints > 0.)]
         self.add_timepoints = self.input_timepoints[np.where(self.input_timepoints > 0.)]
