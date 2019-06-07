@@ -102,7 +102,6 @@ class SNVtree:
         else:
             num_muts = 3e9 * self.mu 
         self.queue = deque()
-        # Begin with a single cell with parent = 1. during the run force the first 100 cells to reproduce
         initial_cell = [Cell(mu = self.mu, seq_type = self.seq_type, parent = 1,spectrum = self.init_spectrum, \
             mutations = [Mutation(self.init_spectrum.spectrum) for x in list(range(int(num_muts)))])] 
                             
@@ -183,9 +182,9 @@ class SNVtree:
             fr["chr"] = "chr" + fr["chr"]
         # The sampling scheme is not guaranteed to produce unique mutations
         # Dropping is not the best answer
-        print("NOT! dropping duplicates, don't use this with bamsurgeon")
-        #print("dropping duplicates")
-        #fr.drop_duplicates(inplace = True)
+        #print("NOT! dropping duplicates, don't use this with bamsurgeon")
+        print("dropping duplicates")
+        fr.drop_duplicates(inplace = True)
         return(fr)
     
     def write_bed(self,filename,chr_style = "UCSC" , min_vaf = 0.01, from_pickle = True):
